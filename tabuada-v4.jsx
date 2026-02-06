@@ -351,6 +351,91 @@ function TrophyRail({ conquistas }) {
   );
 }
 
+function AuthScreen({ onAuth }) {
+  const [name, setName] = useState('');
+  const [pin, setPin] = useState('');
+  const [mode, setMode] = useState('check');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const submitName = async () => {
+    const cleaned = name.trim();
+    if (cleaned.length < 2) return setError('Digite um nome com pelo menos 2 caracteres.');
+    setLoading(true); setError('');
+    try {
+      const res = await fetch(`/api/auth/check?name=${encodeURIComponent(cleaned)}`);
+      const data = await res.json();
+      setMode(data.exists ? 'login' : 'register');
+    } catch {
+      setError('Não foi possível verificar o usuário.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const submitAuth = async () => {
+    const cleaned = name.trim();
+    if (!/^\d{4,6}$/.test(pin)) return setError('PIN deve ter 4 a 6 dígitos.');
+    setLoading(true); setError('');
+    try {
+      const path = mode === 'register' ? '/api/auth/register' : '/api/auth/login';
+      const res = await fetch(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: cleaned, pin }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Falha de autenticação');
+      onAuth(data);
+    } catch (e) {
+      setError(e.message || 'Falha de autenticação');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="tq-home">
+      <div className="tq-home-bg-orbs">
+        <div className="tq-orb tq-orb-1" />
+        <div className="tq-orb tq-orb-2" />
+        <div className="tq-orb tq-orb-3" />
+      </div>
+      <div className="tq-home-card">
+        <div className="tq-home-header">
+          <div style={{ fontSize: '2.5rem' }}>🔐</div>
+          <h1 className="tq-title">Entrar no Tabuada Quest</h1>
+          <div className="tq-subtitle">Perfil por jogador sem sobrescrever ranking/troféus</div>
+        </div>
+
+        <input className="tq-meta-input" placeholder="Seu nome"
+          value={name} onChange={e => setName(e.target.value)} disabled={loading || mode !== 'check'} />
+        {mode === 'check' ? (
+          <button className="tq-btn-primary" onClick={submitName} disabled={loading}>
+            {loading ? 'Verificando...' : 'Continuar'}
+          </button>
+        ) : (
+          <>
+            <div className="tq-mini-sub" style={{ marginBottom: 8 }}>
+              {mode === 'register' ? 'Novo jogador detectado. Crie seu PIN.' : `Olá ${name.trim()}, digite seu PIN.`}
+            </div>
+            <input className="tq-meta-input" inputMode="numeric" pattern="[0-9]*" maxLength={6}
+              placeholder="PIN (4-6 dígitos)" value={pin} onChange={e => setPin(e.target.value.replace(/\D/g, ''))}
+              disabled={loading} />
+            <button className="tq-btn-primary" onClick={submitAuth} disabled={loading}>
+              {loading ? 'Entrando...' : mode === 'register' ? 'Criar e Entrar' : 'Entrar'}
+            </button>
+            <button className="tq-small-btn outline" style={{ marginTop: 10 }} onClick={() => { setMode('check'); setPin(''); }}>
+              Trocar nome
+            </button>
+          </>
+        )}
+        {error && <div className="tq-mini-howto" style={{ marginTop: 10, borderColor: 'rgba(244,63,94,0.7)' }}>{error}</div>}
+      </div>
+    </div>
+  );
+}
+
 const Mascote = ({ estado, compact }) => {
   const expressoes = {
     normal: '😊', pensando: '🤔', feliz: '😄', muitoFeliz: '🤩',
@@ -1681,7 +1766,7 @@ const MINIGAME_BY_ID = Object.fromEntries(MINIGAME_REGISTRY.map((m) => [m.id, m]
 // ============================================================
 //  TELA INICIAL
 // ============================================================
-function TelaInicial({ onIniciar, licoesCompletas, conquistasDesbloqueadas, pontuacaoTotal, streak, rankingCorridas }) {
+function TelaInicial({ onIniciar, licoesCompletas, conquistasDesbloqueadas, pontuacaoTotal, streak, rankingCorridas, userName, onLogout }) {
   const [selecionadas, setSelecionadas] = useState([2, 3, 4, 5, 6, 7, 8, 9]);
   const [mostrarConquistas, setMostrarConquistas] = useState(false);
   const [modoTempo, setModoTempo] = useState(true);
@@ -1712,6 +1797,8 @@ function TelaInicial({ onIniciar, licoesCompletas, conquistasDesbloqueadas, pont
           <div style={{ fontSize: '2.5rem', filter: 'drop-shadow(0 4px 12px rgba(99,102,241,0.4))' }}>🧮</div>
           <h1 className="tq-title">Tabuada Quest</h1>
           <div className="tq-subtitle">A Aventura da Multiplicação</div>
+          <div className="tq-mini-sub" style={{ marginTop: 8, marginBottom: 8 }}>Jogador: <strong>{userName}</strong></div>
+          <button className="tq-small-btn outline" onClick={onLogout}>Sair</button>
         </div>
 
         {/* XP & Rank */}
@@ -2278,26 +2365,66 @@ function TelaJogo({ tabuadas, modoTempo, metaAcertos, onVoltar, onLicaoCompleta,
 // ============================================================
 export default function TabuadaApp() {
   const [tela, setTela] = useState('inicial');
+  const [authLoading, setAuthLoading] = useState(true);
+  const [user, setUser] = useState(null);
   const [tabuadasSelecionadas, setTabuadasSelecionadas] = useState([]);
   const [modoTempo, setModoTempo] = useState(true);
   const [metaAcertos, setMetaAcertos] = useState(DEFAULT_META_ACERTOS);
   const [licoesCompletas, setLicoesCompletas] = useState(0);
   const [pontuacaoTotal, setPontuacaoTotal] = useState(0);
   const [conquistasDesbloqueadas, setConquistasDesbloqueadas] = useState({});
-  const [streak] = useState(1);
+  const [streak, setStreak] = useState(1);
   const [rankingCorridas, setRankingCorridas] = useState(() => {
-    try {
-      const raw = localStorage.getItem('tq_ranking_corridas_v1');
-      const parsed = raw ? JSON.parse(raw) : [];
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
+    return [];
   });
 
   useEffect(() => {
-    localStorage.setItem('tq_ranking_corridas_v1', JSON.stringify(rankingCorridas));
-  }, [rankingCorridas]);
+    const load = async () => {
+      try {
+        const res = await fetch('/api/auth/me');
+        const data = await res.json();
+        if (data?.user) {
+          setUser(data.user);
+          const p = data.profile || {};
+          setLicoesCompletas(Number(p.licoesCompletas || 0));
+          setPontuacaoTotal(Number(p.pontuacaoTotal || 0));
+          setConquistasDesbloqueadas(p.conquistasDesbloqueadas || {});
+          setStreak(Number(p.streak || 1));
+          setRankingCorridas(Array.isArray(p.rankingCorridas) ? p.rankingCorridas : []);
+        }
+      } catch {
+        // keep logged out
+      } finally {
+        setAuthLoading(false);
+      }
+    };
+    load();
+  }, []);
+
+  const hydrateFromProfile = useCallback((profile) => {
+    const p = profile || {};
+    setLicoesCompletas(Number(p.licoesCompletas || 0));
+    setPontuacaoTotal(Number(p.pontuacaoTotal || 0));
+    setConquistasDesbloqueadas(p.conquistasDesbloqueadas || {});
+    setStreak(Number(p.streak || 1));
+    setRankingCorridas(Array.isArray(p.rankingCorridas) ? p.rankingCorridas : []);
+  }, []);
+
+  const syncProfile = useCallback(async ({ race, conquistas }) => {
+    if (!user) return;
+    try {
+      const res = await fetch('/api/profile/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ race, conquistasDesbloqueadas: conquistas || {} }),
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data?.profile) hydrateFromProfile(data.profile);
+    } catch {
+      // silent: keep local progression until next sync
+    }
+  }, [user, hydrateFromProfile]);
 
   const iniciarJogo = (tabuadas, tempo, meta) => {
     const metaValida = Math.min(MAX_META_ACERTOS, Math.max(MIN_META_ACERTOS, meta || DEFAULT_META_ACERTOS));
@@ -2321,13 +2448,53 @@ export default function TabuadaApp() {
     setPontuacaoTotal(p => p + pontos);
     let posicao = 1;
     setRankingCorridas(prev => {
-      const lista = [...prev, registro].sort((a, b) => b.score - a.score).slice(0, 20);
+      const lista = [...prev, registro].sort((a, b) => Number(b.score || 0) - Number(a.score || 0)).slice(0, 20);
       posicao = lista.findIndex(r => r.id === registro.id) + 1;
       return lista;
     });
+    syncProfile({
+      race: registro,
+      conquistas: conquistasDesbloqueadas,
+    });
     return posicao;
   };
-  const adicionarConquista = (id) => { setConquistasDesbloqueadas(c => ({ ...c, [id]: true })); };
+  const adicionarConquista = (id) => {
+    setConquistasDesbloqueadas(c => {
+      const next = { ...c, [id]: true };
+      syncProfile({ conquistas: next });
+      return next;
+    });
+  };
+
+  const handleAuth = ({ user: loggedUser, profile }) => {
+    setUser(loggedUser);
+    hydrateFromProfile(profile);
+    setTela('inicial');
+  };
+
+  const handleLogout = async () => {
+    try { await fetch('/api/auth/logout', { method: 'POST' }); } catch { /* ignore */ }
+    setUser(null);
+    setLicoesCompletas(0);
+    setPontuacaoTotal(0);
+    setConquistasDesbloqueadas({});
+    setStreak(1);
+    setRankingCorridas([]);
+    setTela('inicial');
+  };
+
+  if (authLoading) {
+    return <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', color: 'white', background: '#0a0a1a' }}>Carregando...</div>;
+  }
+
+  if (!user) {
+    return (
+      <>
+        <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Lilita+One&display=swap" rel="stylesheet" />
+        <AuthScreen onAuth={handleAuth} />
+      </>
+    );
+  }
 
   return (
     <>
@@ -2810,6 +2977,7 @@ export default function TabuadaApp() {
           onIniciar={iniciarJogo} licoesCompletas={licoesCompletas}
           pontuacaoTotal={pontuacaoTotal} conquistasDesbloqueadas={conquistasDesbloqueadas}
           streak={streak} rankingCorridas={rankingCorridas}
+          userName={user.displayName} onLogout={handleLogout}
         />
       ) : (
         <TelaJogo
