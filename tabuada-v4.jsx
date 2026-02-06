@@ -2484,13 +2484,81 @@ export default function TabuadaApp() {
   };
 
   if (authLoading) {
-    return <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', color: 'white', background: '#0a0a1a' }}>Carregando...</div>;
+    return (
+      <>
+        <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Lilita+One&display=swap" rel="stylesheet" />
+        <style>{`
+          body { font-family: 'Fredoka', sans-serif; margin: 0; background: linear-gradient(150deg, #0a0a1a 0%, #0f172a 40%, #1e1b4b 100%); }
+        `}</style>
+        <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', color: 'white' }}>Carregando...</div>
+      </>
+    );
   }
 
   if (!user) {
     return (
       <>
         <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Lilita+One&display=swap" rel="stylesheet" />
+        <style>{`
+          *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+          body { font-family: 'Fredoka', sans-serif; overflow-x: hidden; user-select: none; background: #0a0a1a; }
+          @keyframes orbFloat1 { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(30px, -40px) scale(1.1); } }
+          @keyframes orbFloat2 { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-40px, 30px) scale(0.9); } }
+          @keyframes orbFloat3 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(20px, 20px); } }
+          .tq-home {
+            min-height: 100vh; min-height: 100dvh;
+            background: linear-gradient(150deg, #0a0a1a 0%, #0f172a 40%, #1e1b4b 100%);
+            display: flex; align-items: center; justify-content: center;
+            padding: 16px; position: relative; overflow: hidden;
+          }
+          .tq-home-bg-orbs { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+          .tq-orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.3; }
+          .tq-orb-1 { width: 300px; height: 300px; background: #6366f1; top: -100px; left: -50px; animation: orbFloat1 8s ease-in-out infinite; }
+          .tq-orb-2 { width: 250px; height: 250px; background: #ec4899; bottom: -80px; right: -60px; animation: orbFloat2 10s ease-in-out infinite; }
+          .tq-orb-3 { width: 200px; height: 200px; background: #06b6d4; top: 50%; left: 60%; animation: orbFloat3 12s ease-in-out infinite; }
+          .tq-home-card {
+            background: rgba(255,255,255,0.06); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 28px; padding: 28px 22px; width: 100%; max-width: 420px;
+            text-align: center; position: relative; z-index: 1;
+            box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+          }
+          .tq-home-header { margin-bottom: 20px; }
+          .tq-title {
+            font-family: 'Lilita One', cursive; font-size: 2rem; letter-spacing: 1px;
+            background: linear-gradient(135deg, #818cf8, #c084fc, #f472b6);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            margin-bottom: 2px;
+          }
+          .tq-subtitle { color: rgba(255,255,255,0.5); font-size: 0.85rem; font-weight: 500; }
+          .tq-btn-primary {
+            width: 100%; max-width: 340px; padding: 16px; border: none; border-radius: 18px;
+            font-size: 1.15rem; font-weight: 700; font-family: inherit;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+            color: white; cursor: pointer;
+            box-shadow: 0 8px 28px rgba(99,102,241,0.4);
+          }
+          .tq-meta-input {
+            width: 100%; max-width: 220px; margin: 0 auto 14px;
+            border: 2px solid rgba(99,102,241,0.35); border-radius: 12px;
+            padding: 9px 12px; background: rgba(255,255,255,0.08); color: white;
+            text-align: center; font-size: 1rem; font-weight: 700; font-family: inherit;
+          }
+          .tq-meta-input:focus { outline: none; border-color: #818cf8; }
+          .tq-small-btn {
+            padding: 7px 16px; border-radius: 20px; border: none; font-size: 0.8rem;
+            font-weight: 600; font-family: inherit; cursor: pointer;
+            background: #6366f1; color: white;
+          }
+          .tq-small-btn.outline { background: transparent; border: 2px solid rgba(99,102,241,0.5); color: #818cf8; }
+          .tq-mini-sub { color: rgba(255,255,255,0.6); font-size: 0.95rem; margin-bottom: 16px; }
+          .tq-mini-howto {
+            max-width: 340px; margin: -4px auto 12px; padding: 8px 12px;
+            border-radius: 12px; font-size: 0.8rem; font-weight: 600;
+            color: rgba(255,255,255,0.88); background: rgba(255,255,255,0.09);
+            border: 1px solid rgba(255,255,255,0.14);
+          }
+        `}</style>
         <AuthScreen onAuth={handleAuth} />
       </>
     );
