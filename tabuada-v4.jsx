@@ -1393,6 +1393,51 @@ function MiniJogoSequencia({ tabuadas, onComplete, playSound }) {
 // ============================================================
 //  MINIGAME: TRILHA DOS EXPLORADORES
 // ============================================================
+const TRILHA_CENARIOS = [
+  { nome: 'Selva', emoji: '🌴', cor: '#22c55e', posicoes: [
+    { e: '🏕️', t: 'Acampamento base' }, { e: '🌿', t: 'Trilha de cipós' }, { e: '🐒', t: 'Bando de macacos' },
+    { e: '🦜', t: 'Ninho de araras' }, { e: '🌺', t: 'Clareira florida' }, { e: '🐊', t: 'Pântano perigoso' },
+    { e: '🌳', t: 'Árvore gigante' }, { e: '🦎', t: 'Lagarto dourado' }, { e: '💧', t: 'Cachoeira secreta' },
+    { e: '🕸️', t: 'Teia da aranha' }, { e: '🍌', t: 'Bananeiras selvagens' }, { e: '🐆', t: 'Rastro de onça' },
+    { e: '🗿', t: 'Ruínas antigas' }, { e: '🌈', t: 'Ponte de arco-íris' }, { e: '🏆', t: 'Templo perdido' },
+  ]},
+  { nome: 'Espaço', emoji: '🚀', cor: '#8b5cf6', posicoes: [
+    { e: '🛸', t: 'Lançamento orbital' }, { e: '🌙', t: 'Órbita da Lua' }, { e: '☄️', t: 'Chuva de meteoros' },
+    { e: '🛰️', t: 'Estação espacial' }, { e: '🌌', t: 'Nebulosa colorida' }, { e: '👽', t: 'Sinal alienígena' },
+    { e: '🪐', t: 'Anéis de Saturno' }, { e: '⭐', t: 'Estrela brilhante' }, { e: '🌑', t: 'Lado escuro da lua' },
+    { e: '🔭', t: 'Observatório cósmico' }, { e: '💫', t: 'Campo de asteroides' }, { e: '🌠', t: 'Estrela cadente' },
+    { e: '🕳️', t: 'Buraco negro' }, { e: '🌍', t: 'Visão da Terra' }, { e: '🏆', t: 'Nova galáxia' },
+  ]},
+  { nome: 'Oceano', emoji: '🌊', cor: '#0ea5e9', posicoes: [
+    { e: '⚓', t: 'Porto de partida' }, { e: '🐚', t: 'Praia de conchas' }, { e: '🐠', t: 'Cardume tropical' },
+    { e: '🪸', t: 'Recife de corais' }, { e: '🐙', t: 'Polvo curioso' }, { e: '🦈', t: 'Alerta de tubarão' },
+    { e: '🫧', t: 'Bolhas misteriosas' }, { e: '🐳', t: 'Baleia majestosa' }, { e: '🧜', t: 'Gruta da sereia' },
+    { e: '🏴‍☠️', t: 'Navio pirata' }, { e: '🦑', t: 'Lula gigante' }, { e: '💎', t: 'Pérola rara' },
+    { e: '🌀', t: 'Redemoinho' }, { e: '🗺️', t: 'Mapa do tesouro' }, { e: '🏆', t: 'Cidade submersa' },
+  ]},
+  { nome: 'Castelo', emoji: '🏰', cor: '#f59e0b', posicoes: [
+    { e: '🚪', t: 'Portão da fortaleza' }, { e: '🗡️', t: 'Sala de armas' }, { e: '🕯️', t: 'Corredor sombrio' },
+    { e: '🛡️', t: 'Guarda adormecido' }, { e: '📜', t: 'Pergaminho antigo' }, { e: '🧪', t: 'Lab do alquimista' },
+    { e: '👻', t: 'Fantasma brincalhão' }, { e: '🗝️', t: 'Chave dourada' }, { e: '📚', t: 'Biblioteca secreta' },
+    { e: '🪞', t: 'Espelho encantado' }, { e: '🧙', t: 'Mago sábio' }, { e: '💰', t: 'Sala do tesouro' },
+    { e: '🐉', t: 'Covil do dragão' }, { e: '👑', t: 'Salão do trono' }, { e: '🏆', t: 'Coroa real' },
+  ]},
+  { nome: 'Vulcão', emoji: '🌋', cor: '#ef4444', posicoes: [
+    { e: '⛺', t: 'Base do vulcão' }, { e: '🪨', t: 'Caminho rochoso' }, { e: '🦅', t: 'Águia das alturas' },
+    { e: '💨', t: 'Fumarola quente' }, { e: '🔶', t: 'Cristal de enxofre' }, { e: '🌡️', t: 'Zona de calor' },
+    { e: '🦎', t: 'Salamandra de fogo' }, { e: '🧱', t: 'Ponte de pedra' }, { e: '🔥', t: 'Rio de lava' },
+    { e: '💎', t: 'Caverna de rubis' }, { e: '🌪️', t: 'Vento infernal' }, { e: '⚡', t: 'Tempestade elétrica' },
+    { e: '🐲', t: 'Fênix renascida' }, { e: '🏔️', t: 'Topo da cratera' }, { e: '🏆', t: 'Coração do vulcão' },
+  ]},
+  { nome: 'Caverna', emoji: '🦇', cor: '#a78bfa', posicoes: [
+    { e: '🕳️', t: 'Entrada da caverna' }, { e: '🕯️', t: 'Luz fraca' }, { e: '🦇', t: 'Colônia de morcegos' },
+    { e: '💧', t: 'Estalactites gotejam' }, { e: '🍄', t: 'Cogumelos luminosos' }, { e: '🕷️', t: 'Teia no caminho' },
+    { e: '🪨', t: 'Passagem estreita' }, { e: '💀', t: 'Esqueleto antigo' }, { e: '🔮', t: 'Cristal brilhante' },
+    { e: '🐍', t: 'Serpente guardiã' }, { e: '🗺️', t: 'Pintura rupestre' }, { e: '⛏️', t: 'Mina de ouro' },
+    { e: '🌊', t: 'Rio subterrâneo' }, { e: '✨', t: 'Gruta dos diamantes' }, { e: '🏆', t: 'Tesouro escondido' },
+  ]},
+];
+
 function MiniJogoTrilha({ tabuadas, onComplete, playSound }) {
   const [fase, setFase] = useState('intro');
   const [tempo, setTempo] = useState(45);
@@ -1403,6 +1448,7 @@ function MiniJogoTrilha({ tabuadas, onComplete, playSound }) {
   const [resposta, setResposta] = useState('');
   const [acertosMini, setAcertosMini] = useState(0);
   const [errosMini, setErrosMini] = useState(0);
+  const [cenario] = useState(() => TRILHA_CENARIOS[Math.floor(Math.random() * TRILHA_CENARIOS.length)]);
 
   const gerarOpcoes = useCallback(() => {
     const passos = [1, 2, 3].sort(() => Math.random() - 0.5);
@@ -1445,24 +1491,29 @@ function MiniJogoTrilha({ tabuadas, onComplete, playSound }) {
     setOpcoes(gerarOpcoes());
   };
 
+  const posAtual = cenario.posicoes[Math.min(posicao, 14)];
+
   if (fase === 'intro') {
     return (
       <div className="tq-mini-center">
-        <div style={{ fontSize: '4rem' }}>🧭</div>
-        <div className="tq-mini-title" style={{ color: '#22d3ee' }}>TRILHA DOS EXPLORADORES</div>
-        <div className="tq-mini-sub">Escolha um caminho e resolva para avançar!</div>
-        <MiniHowTo text="selecione rota (+1/+2/+3), acerte a conta e avance na trilha." />
+        <div style={{ fontSize: '4rem' }}>{cenario.emoji}</div>
+        <div className="tq-mini-title" style={{ color: cenario.cor }}>TRILHA: {cenario.nome.toUpperCase()}</div>
+        <div className="tq-mini-sub">Explore a trilha e resolva desafios para avançar!</div>
+        <MiniHowTo text="selecione rota (+1/+2/+3), veja a pista do destino, acerte a conta e avance na trilha." />
       </div>
     );
   }
 
   if (fase === 'resultado') {
     const xp = (acertosMini * 18) + (posicao * 6) + (vidas * 8);
+    const posicaoFinalInfo = cenario.posicoes[Math.min(posicao, 14)];
     return (
       <div className="tq-mini-center">
         {posicao >= 15 && <Confetti />}
-        <div style={{ fontSize: '4rem' }}>{posicao >= 15 ? '🏴‍☠️' : vidas <= 0 ? '💀' : '🧭'}</div>
-        <div className="tq-mini-title">Expedição Encerrada!</div>
+        <div style={{ fontSize: '4rem' }}>{posicao >= 15 ? posicaoFinalInfo.e : vidas <= 0 ? '💀' : cenario.emoji}</div>
+        <div className="tq-mini-title" style={{ color: cenario.cor }}>
+          {posicao >= 15 ? `${cenario.nome}: ${posicaoFinalInfo.t}!` : 'Expedição Encerrada!'}
+        </div>
         <div className="tq-mini-sub">Posição: {posicao}/15 • Acertos: {acertosMini}</div>
         <button className="tq-btn-primary" onClick={() => onComplete({
           xp, acertosMini, errosMini, tempoSeg: 45 - Math.max(0, tempo), comboMax: 0, eventos: { posicaoFinal: posicao },
@@ -1477,19 +1528,30 @@ function MiniJogoTrilha({ tabuadas, onComplete, playSound }) {
     <div className="tq-mini-top">
       <div className="tq-crazy-header">
         <div className="tq-pill">⏱️ {tempo}s</div>
-        <div className="tq-pill">📍 {posicao}/15</div>
+        <div className="tq-pill" style={{ color: cenario.cor }}>{cenario.emoji} {cenario.nome}</div>
         <div className="tq-pill">{'❤️'.repeat(vidas)}{'🖤'.repeat(3 - vidas)}</div>
       </div>
-      <div className="tq-progress-bar" style={{ maxWidth: 340, width: '100%', marginBottom: 16 }}>
-        <div className="tq-progress-fill" style={{ width: `${(posicao / 15) * 100}%` }} />
+      <div style={{ textAlign: 'center', margin: '4px 0 8px', fontSize: '1.5rem' }}>
+        {posAtual.e} <span style={{ fontSize: '0.95rem', color: '#cbd5e1' }}>{posAtual.t}</span>
+        <span style={{ fontSize: '0.8rem', color: '#64748b', marginLeft: 8 }}>({posicao}/15)</span>
       </div>
-      <div className="tq-mini-sub" style={{ marginBottom: 10 }}>Escolha um caminho:</div>
+      <div className="tq-progress-bar" style={{ maxWidth: 340, width: '100%', marginBottom: 12 }}>
+        <div className="tq-progress-fill" style={{ width: `${(posicao / 15) * 100}%`, background: cenario.cor }} />
+      </div>
+      <div className="tq-mini-sub" style={{ marginBottom: 8 }}>Escolha um caminho:</div>
       <div className="tq-alvo-grid" style={{ marginBottom: 14 }}>
-        {opcoes.map((o) => (
-          <button key={o.id} className={`tq-alvo-btn ${ativa?.id === o.id ? 'correta' : ''}`} onClick={() => setAtiva(o)}>
-            +{o.passos}
-          </button>
-        ))}
+        {opcoes.map((o) => {
+          const destino = Math.min(posicao + o.passos, 15) - 1;
+          const pista = cenario.posicoes[Math.max(0, Math.min(destino, 14))];
+          return (
+            <button key={o.id} className={`tq-alvo-btn ${ativa?.id === o.id ? 'correta' : ''}`}
+              onClick={() => setAtiva(o)}
+              style={{ flexDirection: 'column', gap: 2, padding: '10px 14px', lineHeight: 1.2 }}>
+              <span style={{ fontSize: '1.3rem' }}>{pista.e} +{o.passos}</span>
+              <span style={{ fontSize: '0.7rem', opacity: 0.75 }}>{pista.t}</span>
+            </button>
+          );
+        })}
       </div>
       {ativa ? (
         <>
