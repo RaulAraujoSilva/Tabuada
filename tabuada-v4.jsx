@@ -1391,84 +1391,302 @@ function MiniJogoSequencia({ tabuadas, onComplete, playSound }) {
 }
 
 // ============================================================
-//  MINIGAME: TRILHA DOS EXPLORADORES
+//  MINIGAME: TRILHA DOS EXPLORADORES (Aventura dos Caminhos)
 // ============================================================
+const AVENTURA_CENARIOS = [
+  {
+    nome: 'Selva', emoji: '🌴', cor: '#22c55e',
+    bons: [
+      { e: '🦜', t: 'Uma arara colorida guia você por um atalho secreto!' },
+      { e: '💎', t: 'Você encontrou uma pedra preciosa escondida nas raízes!' },
+      { e: '🐒', t: 'Um macaco simpático trouxe frutas deliciosas para você!' },
+      { e: '🌺', t: 'Uma clareira mágica restaura suas energias!' },
+      { e: '🗝️', t: 'Você achou uma chave antiga entre as folhas!' },
+      { e: '🧭', t: 'Uma bússola encantada aponta o caminho certo!' },
+      { e: '🌈', t: 'Um arco-íris surge e revela um tesouro escondido!' },
+      { e: '🦋', t: 'Borboletas mágicas iluminam seu caminho!' },
+      { e: '🍯', t: 'Você encontrou mel dourado que dá super força!' },
+      { e: '🏕️', t: 'Um acampamento abandonado tem suprimentos úteis!' },
+    ],
+    ruins: [
+      { e: '🐊', t: 'Um crocodilo bloqueia a passagem! Você perde tempo fugindo.' },
+      { e: '🕸️', t: 'Você caiu numa teia de aranha gigante!' },
+      { e: '🌧️', t: 'Uma tempestade tropical alagou o caminho!' },
+      { e: '🐍', t: 'Uma cobra venenosa te fez recuar!' },
+      { e: '🌪️', t: 'Um redemoinho de folhas te deixou perdido!' },
+      { e: '🦟', t: 'Um enxame de mosquitos ataca sem piedade!' },
+      { e: '🪵', t: 'A ponte de troncos quebrou sob seus pés!' },
+      { e: '🐆', t: 'Uma onça apareceu e você teve que se esconder!' },
+      { e: '🌑', t: 'A escuridão da floresta te confundiu!' },
+      { e: '🦎', t: 'Um lagarto roubou sua mochila!' },
+    ],
+    finais: {
+      epico: '🏆 Você é a LENDA DA SELVA! Descobriu o Templo Perdido e se tornou protetor(a) da floresta!',
+      bom: '🌟 Ótima expedição! Você explorou a selva com coragem e voltou cheio(a) de histórias!',
+      regular: '🌿 A selva foi desafiadora, mas você sobreviveu. Na próxima vai mais longe!',
+      ruim: '😰 A selva venceu desta vez... Mas todo explorador aprende com os erros. Tente novamente!',
+    },
+  },
+  {
+    nome: 'Espaço', emoji: '🚀', cor: '#8b5cf6',
+    bons: [
+      { e: '⭐', t: 'Você descobriu uma nova estrela e batizou com seu nome!' },
+      { e: '👽', t: 'Alienígenas amigáveis compartilham tecnologia avançada!' },
+      { e: '🛸', t: 'Você encontrou uma nave abandonada cheia de cristais!' },
+      { e: '🌌', t: 'Uma nebulosa colorida recarrega seus escudos!' },
+      { e: '🪐', t: 'Os anéis de Saturno escondem um portal secreto!' },
+      { e: '🛰️', t: 'Uma estação espacial oferece reparos gratuitos!' },
+      { e: '💫', t: 'Poeira estelar mágica turbina seus motores!' },
+      { e: '🌠', t: 'Uma estrela cadente traz sorte na sua missão!' },
+      { e: '🔭', t: 'Você avistou um planeta habitável desconhecido!' },
+      { e: '🌍', t: 'Uma mensagem da Terra traz boas notícias!' },
+    ],
+    ruins: [
+      { e: '☄️', t: 'Uma chuva de meteoros danificou sua nave!' },
+      { e: '🕳️', t: 'Um buraco negro quase te sugou!' },
+      { e: '🤖', t: 'Robôs hostis atacaram sua nave!' },
+      { e: '💥', t: 'Uma explosão solar fritou seus sistemas!' },
+      { e: '🌑', t: 'Você ficou à deriva no lado escuro da lua!' },
+      { e: '👾', t: 'Invasores espaciais roubaram seu combustível!' },
+      { e: '🧊', t: 'Um asteroide de gelo congelou seus motores!' },
+      { e: '📡', t: 'Interferência cósmica cortou suas comunicações!' },
+      { e: '🌀', t: 'Um vórtice espacial te jogou para longe!' },
+      { e: '⚡', t: 'Uma tempestade magnética desligou a nave!' },
+    ],
+    finais: {
+      epico: '🏆 Você é o(a) HERÓI GALÁCTICO! Descobriu uma nova galáxia e salvou civilizações inteiras!',
+      bom: '🌟 Missão cumprida, astronauta! Você explorou o cosmos com bravura!',
+      regular: '🚀 O espaço é vasto e implacável. Você voltou, e isso já é uma vitória!',
+      ruim: '😰 Houston, tivemos um problema... Mas não desista das estrelas! Tente de novo!',
+    },
+  },
+  {
+    nome: 'Oceano', emoji: '🌊', cor: '#0ea5e9',
+    bons: [
+      { e: '🐬', t: 'Golfinhos alegres guiam seu submarino por um atalho!' },
+      { e: '💎', t: 'Você encontrou uma pérola gigante no fundo do mar!' },
+      { e: '🧜', t: 'Uma sereia te ensina o caminho para a cidade submersa!' },
+      { e: '🐳', t: 'Uma baleia gentil te carrega nas costas!' },
+      { e: '🪸', t: 'O recife de corais esconde um baú de tesouros!' },
+      { e: '🐠', t: 'Um cardume luminoso ilumina águas escuras!' },
+      { e: '⚓', t: 'Você encontrou uma âncora mágica que dá força!' },
+      { e: '🗺️', t: 'Um mapa do tesouro aparece flutuando nas águas!' },
+      { e: '🫧', t: 'Bolhas encantadas criam um escudo protetor!' },
+      { e: '🐚', t: 'Uma concha mágica concede um desejo!' },
+    ],
+    ruins: [
+      { e: '🦈', t: 'Um tubarão gigante apareceu do nada!' },
+      { e: '🦑', t: 'Uma lula gigante agarrou seu submarino!' },
+      { e: '🌀', t: 'Um redemoinho te puxou para o fundo!' },
+      { e: '🏴‍☠️', t: 'Piratas atacaram seu barco!' },
+      { e: '🧊', t: 'Um iceberg bloqueou a passagem!' },
+      { e: '🌊', t: 'Uma onda gigante te jogou longe do curso!' },
+      { e: '🐙', t: 'Um polvo roubou sua bússola!' },
+      { e: '⛈️', t: 'Uma tempestade marítima te pegou desprevenido!' },
+      { e: '🪼', t: 'Águas-vivas elétricas cercaram você!' },
+      { e: '🕳️', t: 'Uma fossa oceânica quase te engoliu!' },
+    ],
+    finais: {
+      epico: '🏆 Você é o(a) SENHOR(A) DOS MARES! Encontrou a lendária Cidade Submersa e se tornou realeza!',
+      bom: '🌟 Grande navegação! Você enfrentou o oceano e voltou com histórias incríveis!',
+      regular: '🌊 O oceano foi bravo, mas você resistiu. Próxima vez, vai mais fundo!',
+      ruim: '😰 As ondas foram demais desta vez... Mas todo marinheiro aprende com o mar. Tente de novo!',
+    },
+  },
+  {
+    nome: 'Castelo', emoji: '🏰', cor: '#f59e0b',
+    bons: [
+      { e: '🗝️', t: 'Você encontrou uma chave dourada que abre portas secretas!' },
+      { e: '🧙', t: 'Um mago sábio te ensina um feitiço protetor!' },
+      { e: '📜', t: 'Um pergaminho antigo revela um atalho secreto!' },
+      { e: '💰', t: 'A sala do tesouro estava destrancada!' },
+      { e: '🛡️', t: 'Um cavaleiro amigo te dá um escudo encantado!' },
+      { e: '📚', t: 'A biblioteca secreta contém conhecimento mágico!' },
+      { e: '🪞', t: 'O espelho encantado mostra o caminho seguro!' },
+      { e: '👑', t: 'Você encontrou a coroa perdida do rei!' },
+      { e: '🎭', t: 'Um bufão da corte te conta segredos do castelo!' },
+      { e: '🕊️', t: 'Uma pomba mensageira traz reforços aliados!' },
+    ],
+    ruins: [
+      { e: '👻', t: 'Um fantasma assustador te fez correr pelos corredores!' },
+      { e: '🐉', t: 'O dragão guardião cuspiu fogo no seu caminho!' },
+      { e: '🕷️', t: 'Aranhas gigantes tomaram conta da sala!' },
+      { e: '⚔️', t: 'Guardas hostis tentaram te capturar!' },
+      { e: '🪤', t: 'Você pisou numa armadilha no chão!' },
+      { e: '🧪', t: 'Uma poção explodiu no laboratório do alquimista!' },
+      { e: '🔒', t: 'A porta se trancou atrás de você!' },
+      { e: '💀', t: 'Esqueletos animados bloqueiam a passagem!' },
+      { e: '🌑', t: 'As tochas apagaram e você ficou no escuro!' },
+      { e: '🦇', t: 'Um bando de morcegos te atacou de surpresa!' },
+    ],
+    finais: {
+      epico: '🏆 Você é o(a) HERÓI DO REINO! Derrotou o dragão e conquistou a coroa real!',
+      bom: '🌟 Bravura digna de um cavaleiro! Você explorou o castelo com honra!',
+      regular: '🏰 O castelo é cheio de mistérios. Você encontrou alguns, mas há mais para descobrir!',
+      ruim: '😰 O castelo venceu desta vez... Mas heróis não desistem! Tente de novo!',
+    },
+  },
+];
+
+const AVENTURA_FACIL = [[2,3],[2,4],[2,5],[3,3],[3,4],[4,2],[5,2],[5,3],[2,6],[3,5],[4,3],[4,4],[5,4],[2,7],[3,6]];
+const AVENTURA_MEDIO = [[6,4],[6,5],[6,6],[7,3],[7,4],[7,5],[7,6],[4,7],[5,6],[5,7],[4,8],[6,7],[3,8],[3,9],[8,3]];
+const AVENTURA_DIFICIL = [[7,7],[7,8],[7,9],[8,6],[8,7],[8,8],[8,9],[9,6],[9,7],[9,8],[9,9],[6,8],[6,9],[12,7],[12,8]];
+
 function MiniJogoTrilha({ tabuadas, onComplete, playSound }) {
   const [fase, setFase] = useState('intro');
-  const [tempo, setTempo] = useState(45);
-  const [posicao, setPosicao] = useState(0);
+  const [tempo, setTempo] = useState(60);
+  const [rodada, setRodada] = useState(1);
   const [vidas, setVidas] = useState(3);
-  const [opcoes, setOpcoes] = useState([]);
-  const [ativa, setAtiva] = useState(null);
   const [resposta, setResposta] = useState('');
   const [acertosMini, setAcertosMini] = useState(0);
   const [errosMini, setErrosMini] = useState(0);
+  const [comboAtual, setComboAtual] = useState(0);
+  const [comboMax, setComboMax] = useState(0);
+  const [xpTotal, setXpTotal] = useState(0);
+  const [caminhoEscolhido, setCaminhoEscolhido] = useState(null);
+  const [eventoAtual, setEventoAtual] = useState(null);
+  const [historiaTexto, setHistoriaTexto] = useState('');
+  const [caminhos, setCaminhos] = useState([]);
 
-  const gerarOpcoes = useCallback(() => {
-    const passos = [1, 2, 3].sort(() => Math.random() - 0.5);
-    return passos.map((p, i) => {
-      const t = tabuadas[Math.floor(Math.random() * tabuadas.length)];
-      const m = Math.floor(Math.random() * 10) + 1;
-      return { id: i, passos: p, tabuada: t, multiplicador: m, resposta: t * m };
-    });
+  const [cenario] = useState(() => AVENTURA_CENARIOS[Math.floor(Math.random() * AVENTURA_CENARIOS.length)]);
+  const [eventosUsadosBons] = useState(() => []);
+  const [eventosUsadosRuins] = useState(() => []);
+
+  const sortearEvento = useCallback((acertou) => {
+    const pool = acertou ? cenario.bons : cenario.ruins;
+    const usados = acertou ? eventosUsadosBons : eventosUsadosRuins;
+    const disponiveis = pool.filter((_, i) => !usados.includes(i));
+    const lista = disponiveis.length > 0 ? disponiveis : pool;
+    const idx = Math.floor(Math.random() * lista.length);
+    const eventoReal = lista[idx];
+    const idxOriginal = pool.indexOf(eventoReal);
+    if (!usados.includes(idxOriginal)) usados.push(idxOriginal);
+    return eventoReal;
+  }, [cenario, eventosUsadosBons, eventosUsadosRuins]);
+
+  const gerarCaminhos = useCallback(() => {
+    const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+    const filtrar = (arr) => {
+      const com = arr.filter(([a]) => tabuadas.includes(a));
+      return com.length > 0 ? com : arr;
+    };
+    const f = pick(filtrar(AVENTURA_FACIL));
+    const m = pick(filtrar(AVENTURA_MEDIO));
+    const d = pick(filtrar(AVENTURA_DIFICIL));
+    return [
+      { id: 0, dif: 'facil', label: '🌿 Esquerda (Fácil)', a: f[0], b: f[1], resp: f[0] * f[1], xp: 10 },
+      { id: 1, dif: 'medio', label: '⚔️ Centro (Médio)', a: m[0], b: m[1], resp: m[0] * m[1], xp: 18 },
+      { id: 2, dif: 'dificil', label: '🔥 Direita (Difícil)', a: d[0], b: d[1], resp: d[0] * d[1], xp: 28 },
+    ];
   }, [tabuadas]);
 
   useEffect(() => {
     if (fase === 'intro') {
       playSound('minigame');
-      const t = setTimeout(() => { setFase('jogando'); setOpcoes(gerarOpcoes()); }, 1800);
+      const t = setTimeout(() => {
+        setFase('escolha');
+        setCaminhos(gerarCaminhos());
+        setHistoriaTexto(`Rodada 1 — Três caminhos se abrem à sua frente...`);
+      }, 1800);
       return () => clearTimeout(t);
     }
-  }, [fase, gerarOpcoes, playSound]);
+  }, [fase, gerarCaminhos, playSound]);
 
   useEffect(() => {
-    if (fase !== 'jogando') return;
-    if (tempo <= 0 || vidas <= 0 || posicao >= 15) { setFase('resultado'); return; }
+    if (fase !== 'escolha' && fase !== 'desafio') return;
+    if (tempo <= 0 || vidas <= 0 || rodada > 10) { setFase('resultado'); return; }
     const iv = setInterval(() => setTempo(t => t - 1), 1000);
     return () => clearInterval(iv);
-  }, [fase, tempo, vidas, posicao]);
+  }, [fase, tempo, vidas, rodada]);
+
+  const escolherCaminho = (cam) => {
+    setCaminhoEscolhido(cam);
+    setFase('desafio');
+    setResposta('');
+  };
 
   const confirmar = () => {
-    if (!ativa || !resposta) return;
+    if (!caminhoEscolhido || !resposta) return;
     const val = parseInt(resposta, 10);
-    if (val === ativa.resposta) {
+    const acertou = val === caminhoEscolhido.resp;
+    const evento = sortearEvento(acertou);
+
+    if (acertou) {
       playSound('acerto');
+      const novoCombo = comboAtual + 1;
+      const bonus = novoCombo >= 3 ? 5 : 0;
+      const ganho = caminhoEscolhido.xp + bonus;
       setAcertosMini(a => a + 1);
-      setPosicao(p => Math.min(15, p + ativa.passos));
+      setComboAtual(novoCombo);
+      setComboMax(m => Math.max(m, novoCombo));
+      setXpTotal(x => x + ganho);
     } else {
       playSound('erro');
       setErrosMini(e => e + 1);
       setVidas(v => Math.max(0, v - 1));
+      setComboAtual(0);
     }
-    setAtiva(null);
-    setResposta('');
-    setOpcoes(gerarOpcoes());
+
+    setEventoAtual(evento);
+    setFase('evento');
+
+    setTimeout(() => {
+      const novaRodada = rodada + 1;
+      setRodada(novaRodada);
+      setCaminhoEscolhido(null);
+      setEventoAtual(null);
+      setResposta('');
+      if (novaRodada > 10 || vidas <= (acertou ? 0 : 1) || tempo <= 0) {
+        setFase('resultado');
+      } else {
+        setCaminhos(gerarCaminhos());
+        setHistoriaTexto(`Rodada ${novaRodada} — Novos caminhos surgem...`);
+        setFase('escolha');
+      }
+    }, 1500);
   };
 
   if (fase === 'intro') {
     return (
       <div className="tq-mini-center">
-        <div style={{ fontSize: '4rem' }}>🧭</div>
-        <div className="tq-mini-title" style={{ color: '#22d3ee' }}>TRILHA DOS EXPLORADORES</div>
-        <div className="tq-mini-sub">Escolha um caminho e resolva para avançar!</div>
-        <MiniHowTo text="selecione rota (+1/+2/+3), acerte a conta e avance na trilha." />
+        <div style={{ fontSize: '4rem' }}>{cenario.emoji}</div>
+        <div className="tq-mini-title" style={{ color: cenario.cor }}>AVENTURA: {cenario.nome.toUpperCase()}</div>
+        <div className="tq-mini-sub">Escolha caminhos, resolva desafios e viva uma aventura épica!</div>
+        <MiniHowTo text="escolha entre 3 portas (Fácil/Médio/Difícil), resolva a multiplicação e avance na história. Caminhos difíceis dão mais XP! 10 rodadas, 3 vidas, 60 segundos." />
       </div>
     );
   }
 
   if (fase === 'resultado') {
-    const xp = (acertosMini * 18) + (posicao * 6) + (vidas * 8);
+    const bonusVida = Math.max(0, vidas) * 10;
+    const xpFinal = xpTotal + bonusVida;
+    const totalAcertos = acertosMini;
+    const finalTipo = totalAcertos >= 12 ? 'epico' : totalAcertos >= 8 ? 'bom' : totalAcertos >= 5 ? 'regular' : 'ruim';
+    const finalTexto = cenario.finais[finalTipo];
     return (
       <div className="tq-mini-center">
-        {posicao >= 15 && <Confetti />}
-        <div style={{ fontSize: '4rem' }}>{posicao >= 15 ? '🏴‍☠️' : vidas <= 0 ? '💀' : '🧭'}</div>
-        <div className="tq-mini-title">Expedição Encerrada!</div>
-        <div className="tq-mini-sub">Posição: {posicao}/15 • Acertos: {acertosMini}</div>
+        {finalTipo === 'epico' && <Confetti />}
+        <div style={{ fontSize: '4rem' }}>{finalTipo === 'epico' ? '🏆' : finalTipo === 'bom' ? '🌟' : finalTipo === 'regular' ? cenario.emoji : '😰'}</div>
+        <div className="tq-mini-title" style={{ color: cenario.cor }}>
+          {finalTipo === 'epico' ? 'AVENTURA ÉPICA!' : finalTipo === 'bom' ? 'Boa Aventura!' : finalTipo === 'regular' ? 'Aventura Encerrada' : 'Fim da Jornada'}
+        </div>
+        <div style={{ fontSize: '0.95rem', color: '#e2e8f0', margin: '8px 16px', lineHeight: 1.4, textAlign: 'center' }}>{finalTexto}</div>
+        <div className="tq-mini-sub">Acertos: {acertosMini} • Erros: {errosMini} • Combo máx: {comboMax}</div>
+        <div className="tq-mini-sub">Vidas restantes: {'❤️'.repeat(Math.max(0, vidas))} (+{bonusVida} XP bônus)</div>
         <button className="tq-btn-primary" onClick={() => onComplete({
-          xp, acertosMini, errosMini, tempoSeg: 45 - Math.max(0, tempo), comboMax: 0, eventos: { posicaoFinal: posicao },
+          xp: xpFinal, acertosMini, errosMini, tempoSeg: 60 - Math.max(0, tempo), comboMax, eventos: { finalTipo, rodadasCompletas: rodada - 1 },
         })} style={{ marginTop: 16 }}>
-          Continuar (+{xp} XP)
+          Continuar (+{xpFinal} XP)
         </button>
+      </div>
+    );
+  }
+
+  if (fase === 'evento' && eventoAtual) {
+    return (
+      <div className="tq-mini-center">
+        <div style={{ fontSize: '4rem' }}>{eventoAtual.e}</div>
+        <div style={{ fontSize: '1.1rem', color: '#e2e8f0', margin: '12px 16px', lineHeight: 1.4, textAlign: 'center' }}>{eventoAtual.t}</div>
       </div>
     );
   }
@@ -1477,24 +1695,40 @@ function MiniJogoTrilha({ tabuadas, onComplete, playSound }) {
     <div className="tq-mini-top">
       <div className="tq-crazy-header">
         <div className="tq-pill">⏱️ {tempo}s</div>
-        <div className="tq-pill">📍 {posicao}/15</div>
+        <div className="tq-pill" style={{ color: cenario.cor }}>{cenario.emoji} {cenario.nome}</div>
         <div className="tq-pill">{'❤️'.repeat(vidas)}{'🖤'.repeat(3 - vidas)}</div>
       </div>
-      <div className="tq-progress-bar" style={{ maxWidth: 340, width: '100%', marginBottom: 16 }}>
-        <div className="tq-progress-fill" style={{ width: `${(posicao / 15) * 100}%` }} />
+      <div style={{ textAlign: 'center', margin: '4px 0', fontSize: '0.85rem', color: '#94a3b8' }}>
+        Rodada {rodada}/10 {comboAtual >= 3 ? `🔥 Combo x${comboAtual}!` : comboAtual >= 1 ? `⚡ x${comboAtual}` : ''}
       </div>
-      <div className="tq-mini-sub" style={{ marginBottom: 10 }}>Escolha um caminho:</div>
-      <div className="tq-alvo-grid" style={{ marginBottom: 14 }}>
-        {opcoes.map((o) => (
-          <button key={o.id} className={`tq-alvo-btn ${ativa?.id === o.id ? 'correta' : ''}`} onClick={() => setAtiva(o)}>
-            +{o.passos}
-          </button>
-        ))}
+      <div className="tq-progress-bar" style={{ maxWidth: 340, width: '100%', marginBottom: 8 }}>
+        <div className="tq-progress-fill" style={{ width: `${((rodada - 1) / 10) * 100}%`, background: cenario.cor }} />
       </div>
-      {ativa ? (
+
+      {fase === 'escolha' && (
         <>
+          <div style={{ textAlign: 'center', fontSize: '0.95rem', color: '#cbd5e1', margin: '4px 0 10px' }}>{historiaTexto}</div>
+          <div className="tq-mini-sub" style={{ marginBottom: 8 }}>Escolha um caminho:</div>
+          <div className="tq-alvo-grid" style={{ marginBottom: 14 }}>
+            {caminhos.map((c) => (
+              <button key={c.id} className="tq-alvo-btn"
+                onClick={() => escolherCaminho(c)}
+                style={{ flexDirection: 'column', gap: 2, padding: '10px 14px', lineHeight: 1.2 }}>
+                <span style={{ fontSize: '1.1rem' }}>{c.label}</span>
+                <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>+{c.xp} XP</span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
+      {fase === 'desafio' && caminhoEscolhido && (
+        <>
+          <div style={{ textAlign: 'center', fontSize: '0.85rem', color: '#94a3b8', marginBottom: 4 }}>
+            {caminhoEscolhido.dif === 'facil' ? '🌿 Caminho Fácil' : caminhoEscolhido.dif === 'medio' ? '⚔️ Caminho Médio' : '🔥 Caminho Difícil'}
+          </div>
           <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'white', marginBottom: 10 }}>
-            {ativa.tabuada} × {ativa.multiplicador} = ?
+            {caminhoEscolhido.a} × {caminhoEscolhido.b} = ?
           </div>
           <input type="number" inputMode="numeric" pattern="[0-9]*" className="tq-input"
             value={resposta} onChange={e => setResposta(e.target.value)}
@@ -1502,8 +1736,6 @@ function MiniJogoTrilha({ tabuadas, onComplete, playSound }) {
           <TecladoNumerico onInput={n => setResposta(r => r + n)} onDelete={() => setResposta(r => r.slice(0, -1))}
             onClear={() => setResposta('')} onSubmit={confirmar} />
         </>
-      ) : (
-        <div className="tq-mini-sub">Selecione uma rota para revelar o desafio.</div>
       )}
     </div>
   );
